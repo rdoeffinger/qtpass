@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-enum actionType { GPG, GIT, REFRESH, EDIT };
+enum actionType { DECRYPT, PULL, REFRESH, EDIT, ENCRYPT, PUSH };
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -65,6 +65,8 @@ private:
     void enableUiElements(bool);
     void selectFirstFile();
     void openFile(QString);
+    void encrypt(QString);
+    void pushRepo();
     QModelIndex firstFile(QModelIndex parentIndex);
 };
 

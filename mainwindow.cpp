@@ -167,13 +167,17 @@ void MainWindow::on_updateButton_clicked()
  */
 void MainWindow::on_treeView_clicked(const QModelIndex &index)
 {
-    currentAction = GPG;
+    currentAction = DECRYPT;
     QString filePath = model.filePath(proxyModel.mapToSource(index));
     if (model.fileInfo(proxyModel.mapToSource(index)).isFile()){
         openFile(filePath);
     }
 }
 
+/**
+ * @brief MainWindow::openFile
+ * @param filePath
+ */
 void MainWindow::openFile(QString filePath) {
     currentFile = filePath;
     QString passFile = filePath;
@@ -222,11 +226,11 @@ void MainWindow::readyRead() {
     }
     ui->textBrowser->setText(output);
 
-    if (currentAction == GPG) {
+    if (currentAction == DECRYPT) {
         ui->editButton->setEnabled(true);
         ui->saveButton->setEnabled(false);
         ui->textBrowser->setReadOnly(true);
-    } else if (currentAction == GIT) {
+    } else if (currentAction == PULL) {
         ui->editButton->setEnabled(false);
         ui->saveButton->setEnabled(false);
         ui->textBrowser->setReadOnly(true);
@@ -236,6 +240,16 @@ void MainWindow::readyRead() {
     } else if (currentAction == EDIT) {
         ui->saveButton->setEnabled(true);
         ui->textBrowser->setReadOnly(false);
+    } else if (currentAction == ENCRYPT) {
+        ui->editButton->setEnabled(true);
+        ui->saveButton->setEnabled(false);
+        ui->textBrowser->setReadOnly(true);
+        currentAction = PUSH;
+        pushRepo();
+    } else if (currentAction == PUSH) {
+        ui->editButton->setEnabled(true);
+        ui->saveButton->setEnabled(false);
+        ui->textBrowser->setReadOnly(true);
     }
 }
 
@@ -261,7 +275,7 @@ void MainWindow::processFinished(int exitCode, QProcess::ExitStatus exitStatus) 
     }
     readyRead();
     enableUiElements(true);
-    if (currentAction == GPG && useClipboard) {
+    if (currentAction == DECRYPT && useClipboard) {
         //Copy first line to clipboard
         QClipboard *clip = QApplication::clipboard();
         QStringList tokens =  ui->textBrowser->document()->toPlainText().split("\n",QString::SkipEmptyParts);
@@ -409,6 +423,9 @@ void MainWindow::on_clearButton_clicked()
     ui->lineEdit->clear();
 }
 
+/**
+ * @brief MainWindow::on_editButton_clicked
+ */
 void MainWindow::on_editButton_clicked()
 {
     currentAction = REFRESH;
@@ -416,10 +433,34 @@ void MainWindow::on_editButton_clicked()
     ui->editButton->setEnabled(false);
 }
 
+/**
+ * @brief MainWindow::on_saveButton_clicked
+ */
 void MainWindow::on_saveButton_clicked()
 {
     ui->textBrowser->setReadOnly(true);
     ui->saveButton->setEnabled(false);
     ui->textBrowser->setFocus();
+    // TODO
+
+    currentAction = ENCRYPT;
+
+}
+
+/**
+ * @brief MainWindow::pushRepo
+ */
+void MainWindow::pushRepo()
+{
+    ui->statusBar->showMessage(tr("Pushing password-store"), 2000);
+    if (usePass) {
+        executePass("git push");
+    } else {
+        executeWrapper(gitExecutable, "push");
+    }
+}
+
+void MainWindow::encrypt(QString data) {
+
     // TODO
 }
