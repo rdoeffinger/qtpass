@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-enum actionType { GPG, GIT };
+enum actionType { GPG, GIT, REFRESH, EDIT };
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -37,8 +37,9 @@ private slots:
     void clearClipboard();
     void on_lineEdit_textChanged(const QString &arg1);
     void on_lineEdit_returnPressed();
-
     void on_clearButton_clicked();
+    void on_editButton_clicked();
+    void on_saveButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -55,6 +56,7 @@ private:
     QString passExecutable;
     QString gitExecutable;
     QString gpgExecutable;   
+    QString currentFile;
     actionType currentAction;
     void updateText();
     void executePass(QString);
@@ -62,6 +64,7 @@ private:
     void config();
     void enableUiElements(bool);
     void selectFirstFile();
+    void openFile(QString);
     QModelIndex firstFile(QModelIndex parentIndex);
 };
 

@@ -154,7 +154,6 @@ void MainWindow::config() {
 void MainWindow::on_updateButton_clicked()
 {
     ui->statusBar->showMessage(tr("Updating password-store"), 2000);
-    currentAction = GIT;
     if (usePass) {
         executePass("git pull");
     } else {
@@ -170,16 +169,21 @@ void MainWindow::on_treeView_clicked(const QModelIndex &index)
 {
     currentAction = GPG;
     QString filePath = model.filePath(proxyModel.mapToSource(index));
+    if (model.fileInfo(proxyModel.mapToSource(index)).isFile()){
+        openFile(filePath);
+    }
+}
+
+void MainWindow::openFile(QString filePath) {
+    currentFile = filePath;
     QString passFile = filePath;
     passFile.replace(".gpg", "");
     passFile.replace(passStore, "");
-//    ui->lineEdit->setText(passFile);
-    if (model.fileInfo(proxyModel.mapToSource(index)).isFile()){
-        if (usePass) {
-            executePass(passFile);
-        } else {
-            executeWrapper(gpgExecutable , "--no-tty -dq " + filePath);
-        }
+//  ui->lineEdit->setText(passFile);
+    if (usePass) {
+        executePass(passFile);
+    } else {
+        executeWrapper(gpgExecutable , "--no-tty -dq " + filePath);
     }
 }
 
@@ -217,6 +221,18 @@ void MainWindow::readyRead() {
         output += process->readAllStandardOutput();
     }
     ui->textBrowser->setText(output);
+
+    if (currentAction == GPG) {
+        ui->editButton->setEnabled(true);
+    } else if (currentAction == GIT) {
+        ui->editButton->setEnabled(false);
+    } else if (currentAction == REFRESH) {
+        currentAction = EDIT;
+        openFile(currentFile);
+    } else if (currentAction == EDIT) {
+        ui->saveButton->setEnabled(true);
+        ui->textBrowser->setReadOnly(false);
+    }
 }
 
 /**
@@ -387,4 +403,19 @@ QModelIndex MainWindow::firstFile(QModelIndex parentIndex) {
 void MainWindow::on_clearButton_clicked()
 {
     ui->lineEdit->clear();
+}
+
+void MainWindow::on_editButton_clicked()
+{
+    currentAction = REFRESH;
+    on_updateButton_clicked();
+    ui->editButton->setEnabled(false);
+}
+
+void MainWindow::on_saveButton_clicked()
+{
+    ui->textBrowser->setReadOnly(true);
+    ui->saveButton->setEnabled(false);
+    ui->textBrowser->setFocus();
+    // TODO
 }
