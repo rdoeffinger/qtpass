@@ -224,8 +224,12 @@ void MainWindow::readyRead() {
 
     if (currentAction == GPG) {
         ui->editButton->setEnabled(true);
+        ui->saveButton->setEnabled(false);
+        ui->textBrowser->setReadOnly(true);
     } else if (currentAction == GIT) {
         ui->editButton->setEnabled(false);
+        ui->saveButton->setEnabled(false);
+        ui->textBrowser->setReadOnly(true);
     } else if (currentAction == REFRESH) {
         currentAction = EDIT;
         openFile(currentFile);
