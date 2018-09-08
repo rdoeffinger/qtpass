@@ -1,6 +1,6 @@
 call vcvars64.bat
 jom.exe distclean
-qmake.exe -config release
+qmake.exe -config release CONFIG+=winstore
 jom.exe clean
 jom.exe
 rmdir /s /q main\release\deploy
